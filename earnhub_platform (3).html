@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnHub - Micro-Task Platform & Admin Suite</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .canvas-scratch { touch-action: none; cursor: pointer; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-200">
+
+    <!-- Top Global Switcher Header -->
+    <header class="bg-gray-900 border-b border-gray-800 text-white px-4 py-2.5 flex justify-between items-center text-sm sticky top-0 z-40">
+        <div class="flex items-center space-x-3">
+            <span class="font-bold tracking-wide flex items-center gap-2">
+                <i class="fa-solid fa-coins text-amber-400"></i> EarnHub System
+            </span>
+            <span id="maintenanceBadge" class="hidden px-2 py-0.5 rounded text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Maintenance Mode
+            </span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <!-- View Mode Switcher Toggle -->
+            <div class="bg-gray-800 p-1 rounded-xl flex items-center border border-gray-700">
+                <button id="viewUserBtn" onclick="switchViewMode('user')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-brand-500 text-white shadow">
+                    <i class="fa-solid fa-user mr-1"></i> User View
+                </button>
+                <button id="viewAdminBtn" onclick="switchViewMode('admin')" class="px-3 py-1 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-user-shield mr-1"></i> Admin Panel
+                </button>
+            </div>
+            <!-- Theme Toggle -->
+            <button id="themeToggleBtn" class="p-1.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition">
+                <i id="themeIcon" class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <div id="app" class="flex flex-col md:flex-row min-h-[calc(100vh-49px)]">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div class="p-5 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div id="sideLogoIcon" class="bg-gradient-to-tr from-indigo-500 to-purple-500 p-2.5 rounded-xl text-white">
+                        <i class="fa-solid fa-wallet text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">EarnHub</span>
+                        <div id="portalSubLabel" class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">User Portal</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Mode Navigation -->
+            <nav id="userNav" class="px-3 py-2 space-y-1">
+                <button onclick="switchTab('dashboard')" class="user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition bg-brand-500 text-white" data-tab="dashboard">
+                    <i class="fa-solid fa-house w-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('tasks')" class="user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-tab="tasks">
+                    <i class="fa-solid fa-list-check w-5"></i>
+                    <span>Micro Tasks</span>
+                </button>
+                <button onclick="switchTab('surveys')" class="user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-tab="surveys">
+                    <i class="fa-solid fa-square-poll-vertical w-5"></i>
+                    <span>Surveys</span>
+                </button>
+                <button onclick="switchTab('games')" class="user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-tab="games">
+                    <i class="fa-solid fa-gamepad w-5"></i>
+                    <span>Mini Games</span>
+                </button>
+                <button onclick="switchTab('referrals')" class="user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-tab="referrals">
+                    <i class="fa-solid fa-user-plus w-5"></i>
+                    <span>Referrals</span>
+                </button>
+                <button onclick="switchTab('wallet')" class="user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-tab="wallet">
+                    <i class="fa-solid fa-building-columns w-5"></i>
+                    <span>Withdraw Funds</span>
+                </button>
+            </nav>
+
+            <!-- Admin Mode Navigation -->
+            <nav id="adminNav" class="px-3 py-2 space-y-1 hidden">
+                <button onclick="switchAdminTab('admin-overview')" class="admin-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition bg-purple-600 text-white" data-admin-tab="admin-overview">
+                    <i class="fa-solid fa-chart-pie w-5"></i>
+                    <span>Overview Stats</span>
+                </button>
+                <button onclick="switchAdminTab('admin-users')" class="admin-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-admin-tab="admin-users">
+                    <i class="fa-solid fa-users-gear w-5"></i>
+                    <span>User Management</span>
+                </button>
+                <button onclick="switchAdminTab('admin-tasks')" class="admin-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-admin-tab="admin-tasks">
+                    <i class="fa-solid fa-list-check w-5"></i>
+                    <span>Task Manager</span>
+                </button>
+                <button onclick="switchAdminTab('admin-withdrawals')" class="admin-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-admin-tab="admin-withdrawals">
+                    <i class="fa-solid fa-clock-rotate-left w-5"></i>
+                    <span>Approvals <span id="pendingBadgeCount" class="ml-auto bg-amber-500 text-gray-900 text-xs px-2 py-0.5 rounded-full font-bold">1</span></span>
+                </button>
+                <button onclick="switchAdminTab('admin-settings')" class="admin-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50" data-admin-tab="admin-settings">
+                    <i class="fa-solid fa-sliders w-5"></i>
+                    <span>System Settings</span>
+                </button>
+            </nav>
+
+            <div id="sideBanner" class="p-4 mx-3 my-6 rounded-2xl bg-gradient-to-br from-indigo-900 to-purple-900 text-white text-center">
+                <i class="fa-solid fa-crown text-amber-400 text-3xl mb-2"></i>
+                <p class="font-semibold text-sm">VIP Membership</p>
+                <p class="text-xs text-gray-300 mt-1">Get 2x earnings on all daily tasks.</p>
+                <button onclick="showToast('VIP Upgrade simulated! Regular status active.', 'info')" class="mt-3 w-full py-1.5 bg-amber-400 hover:bg-amber-300 text-gray-900 font-bold text-xs rounded-lg transition">Upgrade</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            
+            <!-- USER VIEW PORTAL -->
+            <div id="userPortalContainer">
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                        <h1 id="welcomeHeading" class="text-2xl font-bold">Welcome back, Alex! 👋</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Complete simple tasks and earn real payout rewards today.</p>
+                    </div>
+                    
+                    <!-- Quick User Metrics Pills -->
+                    <div class="flex items-center space-x-3 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <div class="px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center space-x-2">
+                            <i class="fa-solid fa-sack-dollar text-emerald-500"></i>
+                            <div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">Balance</div>
+                                <div class="font-bold text-emerald-600 dark:text-emerald-400" id="userBalance">$12.45</div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 bg-amber-50 dark:bg-amber-900/30 rounded-xl flex items-center space-x-2">
+                            <i class="fa-solid fa-coins text-amber-500"></i>
+                            <div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">Coins</div>
+                                <div class="font-bold text-amber-600 dark:text-amber-400" id="userCoins">1,250</div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- 1. USER DASHBOARD VIEW -->
+                <section id="tab-dashboard" class="space-y-6">
+                    <!-- Daily Streak Banner -->
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                        <div class="relative z-10">
+                            <div class="flex items-center space-x-2 text-amber-300 font-semibold text-sm">
+                                <i class="fa-solid fa-fire text-lg"></i>
+                                <span>Daily Reward Streak</span>
+                            </div>
+                            <h2 class="text-xl md:text-2xl font-bold mt-2">Claim Your Daily Bonus</h2>
+                            <p class="text-indigo-100 text-sm mt-1 max-w-xl">Log in consecutive days to unlock higher rewards and multiplier badges.</p>
+                            
+                            <!-- Streak Days -->
+                            <div class="grid grid-cols-4 sm:grid-cols-7 gap-2 mt-4 max-w-lg">
+                                <div class="bg-white/20 backdrop-blur rounded-xl p-2 text-center border border-white/30">
+                                    <span class="text-xs block text-indigo-100">Day 1</span>
+                                    <span class="font-bold text-sm text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                                </div>
+                                <div class="bg-white/20 backdrop-blur rounded-xl p-2 text-center border border-white/30">
+                                    <span class="text-xs block text-indigo-100">Day 2</span>
+                                    <span class="font-bold text-sm text-emerald-300"><i class="fa-solid fa-check"></i></span>
+                                </div>
+                                <div class="bg-white/30 backdrop-blur rounded-xl p-2 text-center ring-2 ring-amber-300">
+                                    <span class="text-xs block text-amber-200 font-semibold">Today</span>
+                                    <span class="font-bold text-sm text-white">+50 pts</span>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-2 text-center">
+                                    <span class="text-xs block text-indigo-200">Day 4</span>
+                                    <span class="font-bold text-sm text-white">+60 pts</span>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-2 text-center">
+                                    <span class="text-xs block text-indigo-200">Day 5</span>
+                                    <span class="font-bold text-sm text-white">+70 pts</span>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-2 text-center">
+                                    <span class="text-xs block text-indigo-200">Day 6</span>
+                                    <span class="font-bold text-sm text-white">+80 pts</span>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur rounded-xl p-2 text-center">
+                                    <span class="text-xs block text-indigo-200">Day 7</span>
+                                    <span class="font-bold text-sm text-amber-300">+200 pts</span>
+                                </div>
+                            </div>
+
+                            <button id="claimDailyBtn" onclick="claimDailyReward()" class="mt-4 px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-gray-900 font-bold rounded-xl transition shadow-lg">
+                                <i class="fa-solid fa-gift mr-2"></i> Claim Daily Bonus
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Overview -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-gray-500 mb-2">
+                                <span class="text-sm">Tasks Completed</span>
+                                <i class="fa-solid fa-check-double text-indigo-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold" id="completedTasksCount">14</div>
+                            <span class="text-xs text-emerald-500 font-medium">+3 completed today</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-gray-500 mb-2">
+                                <span class="text-sm">Total Earnings</span>
+                                <i class="fa-solid fa-chart-line text-emerald-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold" id="totalEarned">$48.20</div>
+                            <span class="text-xs text-gray-400">All-time platform payout</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-gray-500 mb-2">
+                                <span class="text-sm">Referral Bonus</span>
+                                <i class="fa-solid fa-users text-purple-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold" id="referralEarnings">$5.00</div>
+                            <span class="text-xs text-indigo-500 font-medium">5 Active referrals</span>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity & Quick Tasks -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <h3 class="font-bold text-lg mb-4 flex items-center justify-between">
+                                <span>Recommended Tasks</span>
+                                <button onclick="switchTab('tasks')" class="text-xs text-brand-500 hover:underline">View All</button>
+                            </h3>
+                            <div class="space-y-3" id="quickTaskContainer"></div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <h3 class="font-bold text-lg mb-4">Activity Log</h3>
+                            <div class="space-y-3" id="activityLogContainer"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. MICRO TASKS VIEW -->
+                <section id="tab-tasks" class="space-y-6 hidden">
+                    <div>
+                        <h2 class="text-xl font-bold">Micro Tasks</h2>
+                        <p class="text-sm text-gray-500">Complete quick sponsor tasks to earn instant cash balance.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="allTasksGrid"></div>
+                </section>
+
+                <!-- 3. SURVEYS VIEW -->
+                <section id="tab-surveys" class="space-y-6 hidden">
+                    <div>
+                        <h2 class="text-xl font-bold">Market Research Surveys</h2>
+                        <p class="text-sm text-gray-500">Share your opinions with brands to receive high-tier payouts.</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <div id="surveyIntro">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl text-amber-600">
+                                    <i class="fa-solid fa-clipboard-list text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg">Consumer Tech Preferences 2026</h3>
+                                    <p class="text-xs text-gray-400">Est. Time: 2 mins • Reward: <span class="text-emerald-500 font-bold">$1.50</span></p>
+                                </div>
+                            </div>
+                            <button onclick="startSurvey()" class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-xl transition">Start Survey</button>
+                        </div>
+
+                        <div id="surveyActive" class="hidden space-y-4">
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div id="surveyProgressBar" class="bg-brand-500 h-2 rounded-full transition-all duration-300" style="width: 33%"></div>
+                            </div>
+                            <p id="surveyQuestion" class="font-semibold text-lg"></p>
+                            <div id="surveyOptions" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. MINI GAMES VIEW -->
+                <section id="tab-games" class="space-y-6 hidden">
+                    <div>
+                        <h2 class="text-xl font-bold">Mini Scratch & Win Game</h2>
+                        <p class="text-sm text-gray-500">Scratch the silver card below using your mouse or finger to reveal random rewards!</p>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <div class="relative w-64 h-40 rounded-xl overflow-hidden shadow-md select-none">
+                            <div id="scratchRewardLayer" class="absolute inset-0 bg-gradient-to-tr from-amber-400 to-amber-200 flex flex-col items-center justify-center text-gray-900 font-bold text-center p-2">
+                                <i class="fa-solid fa-trophy text-3xl mb-1 text-amber-700"></i>
+                                <span class="text-xs uppercase tracking-wider text-amber-800">You Won</span>
+                                <span id="scratchPrizeText" class="text-xl text-emerald-900 font-extrabold">+100 Coins!</span>
+                            </div>
+                            <canvas id="scratchCanvas" class="absolute inset-0 z-10 canvas-scratch" width="256" height="160"></canvas>
+                        </div>
+                        <button onclick="resetScratchGame()" class="mt-5 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-medium rounded-xl transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Play Again
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 5. REFERRALS VIEW -->
+                <section id="tab-referrals" class="space-y-6 hidden">
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 rounded-2xl text-white">
+                        <h2 class="text-xl font-bold">Invite Friends & Earn 10% Commission</h2>
+                        <p class="text-sm text-purple-100 mt-1">Share your exclusive link with friends and receive 10% of their micro-task earnings for life.</p>
+                        
+                        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="referralInput" readonly value="https://earnhub.app/ref?id=alex99" class="bg-white/10 backdrop-blur border border-white/20 text-white px-4 py-2.5 rounded-xl flex-1 text-sm focus:outline-none">
+                            <button onclick="copyReferralLink()" class="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-gray-900 font-bold rounded-xl transition flex items-center justify-center">
+                                <i class="fa-solid fa-copy mr-2"></i> Copy Link
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <span class="text-xs text-gray-400 font-medium">Total Invited</span>
+                            <div class="text-2xl font-bold mt-1">12 Users</div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <span class="text-xs text-gray-400 font-medium">Active Earners</span>
+                            <div class="text-2xl font-bold text-emerald-500 mt-1">5 Active</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. WALLET & WITHDRAW VIEW -->
+                <section id="tab-wallet" class="space-y-6 hidden">
+                    <div>
+                        <h2 class="text-xl font-bold">Withdraw Funds</h2>
+                        <p class="text-sm text-gray-500">Transfer your earnings securely to your preferred local or international payment method.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <label class="block font-medium text-sm mb-3">Select Withdrawal Gateway</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                                <button onclick="selectGateway('bKash')" class="gateway-btn p-3 rounded-xl border border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 text-center flex flex-col items-center justify-center" data-gw="bKash">
+                                    <i class="fa-solid fa-mobile-screen text-pink-500 text-xl mb-1"></i>
+                                    <span class="text-xs font-semibold">bKash</span>
+                                </button>
+                                <button onclick="selectGateway('Nagad')" class="gateway-btn p-3 rounded-xl border border-gray-200 dark:border-gray-700 text-center flex flex-col items-center justify-center hover:border-indigo-500" data-gw="Nagad">
+                                    <i class="fa-solid fa-wallet text-orange-500 text-xl mb-1"></i>
+                                    <span class="text-xs font-semibold">Nagad</span>
+                                </button>
+                                <button onclick="selectGateway('PayPal')" class="gateway-btn p-3 rounded-xl border border-gray-200 dark:border-gray-700 text-center flex flex-col items-center justify-center hover:border-indigo-500" data-gw="PayPal">
+                                    <i class="fa-brands fa-paypal text-blue-500 text-xl mb-1"></i>
+                                    <span class="text-xs font-semibold">PayPal</span>
+                                </button>
+                                <button onclick="selectGateway('Crypto')" class="gateway-btn p-3 rounded-xl border border-gray-200 dark:border-gray-700 text-center flex flex-col items-center justify-center hover:border-indigo-500" data-gw="Crypto">
+                                    <i class="fa-brands fa-bitcoin text-amber-500 text-xl mb-1"></i>
+                                    <span class="text-xs font-semibold">Crypto (USDT)</span>
+                                </button>
+                            </div>
+
+                            <form id="withdrawalForm" onsubmit="handleWithdrawal(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Account Number / Email / Address</label>
+                                    <input type="text" id="accountInput" required placeholder="e.g. 01700000000 or user@email.com" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Withdrawal Amount ($ USD)</label>
+                                    <input type="number" id="amountInput" min="1" max="500" step="0.5" value="10" required class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <p class="text-xs text-gray-400 mt-1">Minimum payout threshold: $<span id="displayMinWithdrawal">5.00</span> USD</p>
+                                </div>
+                                <button type="submit" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl transition shadow-md">
+                                    Confirm & Request Payout
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-lg mb-3">Payout Rules</h3>
+                                <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-2">
+                                    <li class="flex items-center"><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i> Payouts processed within 24 hours.</li>
+                                    <li class="flex items-center"><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i> No extra transaction fees on local gateways.</li>
+                                    <li class="flex items-center"><i class="fa-solid fa-circle-check text-emerald-500 mr-2"></i> Convert coins at <span id="displayConversionRate">1000</span> pts = $1.00 USD.</li>
+                                </ul>
+                            </div>
+                            <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <button onclick="convertCoinsToCash()" class="w-full py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold rounded-xl text-xs transition border border-amber-500/30">
+                                    <i class="fa-solid fa-right-left mr-1"></i> Convert Coins to Cash
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+
+            <!-- ADMIN MANAGEMENT PANEL -->
+            <div id="adminPanelContainer" class="hidden">
+                <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-2">
+                            <i class="fa-solid fa-user-shield"></i> System Administration Panel
+                        </h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Monitor platform metrics, manage users, approve payouts, and edit tasks.</p>
+                    </div>
+                    <div class="text-xs text-gray-400 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-xl border border-purple-200 dark:border-purple-800">
+                        Admin Session: <span class="font-bold text-purple-600 dark:text-purple-400">Root Superuser</span>
+                    </div>
+                </header>
+
+                <!-- ADMIN TAB 1: OVERVIEW STATS -->
+                <section id="admin-overview" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-gray-400 mb-2">
+                                <span class="text-xs font-semibold uppercase tracking-wider">Total Registered Users</span>
+                                <i class="fa-solid fa-users text-purple-500 text-lg"></i>
+                            </div>
+                            <div class="text-2xl font-bold" id="adminStatTotalUsers">1,248</div>
+                            <span class="text-xs text-emerald-500 font-medium">+12 join requests today</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-gray-400 mb-2">
+                                <span class="text-xs font-semibold uppercase tracking-wider">Total Payouts Requested</span>
+                                <i class="fa-solid fa-money-bill-transfer text-emerald-500 text-lg"></i>
+                            </div>
+                            <div class="text-2xl font-bold" id="adminStatTotalPayouts">$4,850.00</div>
+                            <span class="text-xs text-gray-400">Lifetime user payouts</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-gray-400 mb-2">
+                                <span class="text-xs font-semibold uppercase tracking-wider">Pending Approval</span>
+                                <i class="fa-solid fa-clock text-amber-500 text-lg"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-amber-500" id="adminStatPendingApprovals">1</div>
+                            <span class="text-xs text-amber-500 font-medium">Requires admin review</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                            <div class="flex justify-between items-center text-gray-400 mb-2">
+                                <span class="text-xs font-semibold uppercase tracking-wider">Net Ad Revenue</span>
+                                <i class="fa-solid fa-chart-pie text-indigo-500 text-lg"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-emerald-500" id="adminStatRevenue">$12,340.50</div>
+                            <span class="text-xs text-emerald-500 font-medium">+18.4% profit margin</span>
+                        </div>
+                    </div>
+
+                    <!-- Platform Chart Placeholder & Quick Action Bar -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <h3 class="font-bold text-lg mb-4 flex items-center justify-between">
+                                <span>Platform Activity Summary</span>
+                                <span class="text-xs text-gray-400">Real-time telemetry</span>
+                            </h3>
+                            <div class="h-48 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-gray-400 space-y-2">
+                                <i class="fa-solid fa-chart-column text-3xl text-purple-400"></i>
+                                <p class="text-sm">User Engagement & Task Completion Analytics Active</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 flex flex-col justify-between">
+                            <div>
+                                <h3 class="font-bold text-lg mb-3">Quick Admin Actions</h3>
+                                <div class="space-y-2">
+                                    <button onclick="switchAdminTab('admin-withdrawals')" class="w-full py-2.5 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-xl text-left flex justify-between items-center transition">
+                                        <span>Review Pending Payouts</span>
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                    <button onclick="switchAdminTab('admin-tasks')" class="w-full py-2.5 px-4 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-xl text-left flex justify-between items-center transition">
+                                        <span>Create New Task Campaign</span>
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-400">
+                                System Status: <span class="text-emerald-500 font-bold">Operational</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ADMIN TAB 2: USER MANAGEMENT -->
+                <section id="admin-users" class="space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold">User Management</h2>
+                            <p class="text-sm text-gray-500">View registered users, modify balance, and freeze fraudulent accounts.</p>
+                        </div>
+                        <input type="text" id="userSearchInput" oninput="filterUserTable()" placeholder="Search user by name or email..." class="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-full sm:w-64">
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-4">User</th>
+                                    <th class="p-4">Balance ($)</th>
+                                    <th class="p-4">Coins</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUserTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <!-- Dynamic User Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ADMIN TAB 3: TASK & OFFER WALL MANAGER -->
+                <section id="admin-tasks" class="space-y-6 hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-bold">Task & Offer Wall Manager</h2>
+                            <p class="text-sm text-gray-500">Add new micro-tasks or edit active campaigns dynamically.</p>
+                        </div>
+                        <button onclick="toggleAddTaskModal()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add New Task
+                        </button>
+                    </div>
+
+                    <!-- Create Task Form Modal/Container -->
+                    <div id="addTaskModal" class="hidden bg-white dark:bg-gray-800 p-6 rounded-2xl border border-purple-200 dark:border-purple-800/50 space-y-4">
+                        <h3 class="font-bold text-lg text-purple-600 dark:text-purple-400">Create New Sponsor Task</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Task Title</label>
+                                <input type="text" id="newTaskTitle" placeholder="e.g. Subscribe to Sponsor Channel" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Reward ($ USD)</label>
+                                <input type="number" id="newTaskReward" step="0.05" value="0.50" class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-medium text-gray-400 mb-1">Description</label>
+                                <input type="text" id="newTaskDesc" placeholder="e.g. Watch video for 30s and leave a comment." class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="toggleAddTaskModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-xl">Cancel</button>
+                            <button onclick="createNewTask()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl">Publish Task</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-4">Task Name</th>
+                                    <th class="p-4">Reward</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTaskTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <!-- Dynamic Task Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ADMIN TAB 4: WITHDRAWAL REQUEST APPROVAL CENTER -->
+                <section id="admin-withdrawals" class="space-y-6 hidden">
+                    <div>
+                        <h2 class="text-xl font-bold">Withdrawal Approval Center</h2>
+                        <p class="text-sm text-gray-500">Approve or decline user payout requests.</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-4">User</th>
+                                    <th class="p-4">Gateway</th>
+                                    <th class="p-4">Account No / Email</th>
+                                    <th class="p-4">Amount</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminWithdrawalTableBody" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <!-- Dynamic Withdrawal Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ADMIN TAB 5: SYSTEM SETTINGS -->
+                <section id="admin-settings" class="space-y-6 hidden">
+                    <div>
+                        <h2 class="text-xl font-bold">System Settings & Rules</h2>
+                        <p class="text-sm text-gray-500">Configure core platform conversion rates, thresholds, and maintenance status.</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-6 max-w-2xl">
+                        <div>
+                            <label class="block font-medium text-sm mb-1">Coin Conversion Rate (Coins per $1.00 USD)</label>
+                            <input type="number" id="settingCoinRate" value="1000" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-sm mb-1">Minimum Withdrawal Limit ($ USD)</label>
+                            <input type="number" id="settingMinWithdrawal" value="5.00" step="0.5" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <div>
+                                <span class="font-medium text-sm block">System Maintenance Mode</span>
+                                <span class="text-xs text-gray-400">Lock user payouts and task submissions for updates.</span>
+                            </div>
+                            <input type="checkbox" id="settingMaintenance" onchange="toggleMaintenanceMode(this.checked)" class="w-5 h-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer">
+                        </div>
+
+                        <button onclick="saveAdminSettings()" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition shadow-md">
+                            Save Configuration Changes
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
+
+    <script>
+        // --- Application Global State ---
+        const state = {
+            viewMode: 'user', // 'user' or 'admin'
+            settings: {
+                coinConversionRate: 1000,
+                minWithdrawal: 5.00,
+                maintenanceMode: false
+            },
+            currentUser: {
+                id: 'usr_alex',
+                name: "Alex Johnson",
+                email: "alex@example.com",
+                balance: 12.45,
+                coins: 1250,
+                completedTasks: 14,
+                totalEarned: 48.20,
+                dailyClaimed: false,
+                status: "Active"
+            },
+            users: [
+                { id: 'usr_alex', name: "Alex Johnson", email: "alex@example.com", balance: 12.45, coins: 1250, status: "Active" },
+                { id: 'usr_rahim', name: "Rahim Chowdhury", email: "rahim@example.com", balance: 25.00, coins: 3400, status: "Active" },
+                { id: 'usr_sarah', name: "Sarah Smith", email: "sarah@example.com", balance: 3.10, coins: 150, status: "Frozen" },
+                { id: 'usr_tanvir', name: "Tanvir Ahmed", email: "tanvir@example.com", balance: 18.75, coins: 920, status: "Active" }
+            ],
+            selectedGateway: 'bKash',
+            activities: [
+                { title: "Completed App Rating Task", amount: "+$0.50", time: "10 mins ago", type: "earn" },
+                { title: "Daily Check-in Bonus", amount: "+50 Coins", time: "2 hours ago", type: "coin" },
+                { title: "bKash Payout Request", amount: "-$10.00", time: "1 day ago", type: "withdraw" }
+            ],
+            tasks: [
+                { id: 1, title: "Watch Video Sponsor Ad", reward: 0.25, type: "cash", icon: "fa-play-circle", desc: "Watch 30s video to earn instantly.", active: true },
+                { id: 2, title: "App Feedback Rating", reward: 0.50, type: "cash", icon: "fa-star", desc: "Leave honest review on sponsor app.", active: true },
+                { id: 3, title: "Newsletter Signup", reward: 0.30, type: "cash", icon: "fa-envelope", desc: "Subscribe to daily finance news.", active: true },
+                { id: 4, title: "Social Follow Task", reward: 0.15, type: "cash", icon: "fa-hashtag", desc: "Follow Twitter sponsor profile.", active: true }
+            ],
+            withdrawals: [
+                { id: 'w_101', userName: "Rahim Chowdhury", gateway: "bKash", account: "01711223344", amount: 15.00, status: "Pending" },
+                { id: 'w_100', userName: "Alex Johnson", gateway: "bKash", account: "01800000000", amount: 10.00, status: "Approved" }
+            ]
+        };
+
+        // --- View Mode Switching (User vs Admin Panel) ---
+        function switchViewMode(mode) {
+            state.viewMode = mode;
+            const userContainer = document.getElementById('userPortalContainer');
+            const adminContainer = document.getElementById('adminPanelContainer');
+            const userNav = document.getElementById('userNav');
+            const adminNav = document.getElementById('adminNav');
+            const sideLogoIcon = document.getElementById('sideLogoIcon');
+            const sideBanner = document.getElementById('sideBanner');
+            const subLabel = document.getElementById('portalSubLabel');
+
+            const viewUserBtn = document.getElementById('viewUserBtn');
+            const viewAdminBtn = document.getElementById('viewAdminBtn');
+
+            if (mode === 'admin') {
+                userContainer.classList.add('hidden');
+                adminContainer.classList.remove('hidden');
+                userNav.classList.add('hidden');
+                adminNav.classList.remove('hidden');
+                sideBanner.classList.add('hidden');
+
+                sideLogoIcon.className = "bg-gradient-to-tr from-purple-600 to-pink-600 p-2.5 rounded-xl text-white";
+                subLabel.textContent = "Admin Suite";
+                subLabel.className = "text-[10px] uppercase font-bold text-purple-400 tracking-wider";
+
+                viewAdminBtn.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-purple-600 text-white shadow";
+                viewUserBtn.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+
+                renderAdminPanel();
+            } else {
+                adminContainer.classList.add('hidden');
+                userContainer.classList.remove('hidden');
+                adminNav.classList.add('hidden');
+                userNav.classList.remove('hidden');
+                sideBanner.classList.remove('hidden');
+
+                sideLogoIcon.className = "bg-gradient-to-tr from-indigo-500 to-purple-500 p-2.5 rounded-xl text-white";
+                subLabel.textContent = "User Portal";
+                subLabel.className = "text-[10px] uppercase font-bold text-gray-400 tracking-wider";
+
+                viewUserBtn.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-brand-500 text-white shadow";
+                viewAdminBtn.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+
+                updateUI();
+            }
+        }
+
+        // --- Theme Toggle Logic ---
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            themeIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        });
+
+        // --- Navigation Switcher ---
+        function switchTab(tabId) {
+            document.querySelectorAll('section[id^="tab-"]').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.user-nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = "user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition bg-brand-500 text-white";
+                } else {
+                    btn.className = "user-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50";
+                }
+            });
+
+            if (tabId === 'games') initScratchCanvas();
+        }
+
+        function switchAdminTab(tabId) {
+            document.querySelectorAll('#adminPanelContainer section[id^="admin-"]').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                if (btn.dataset.adminTab === tabId) {
+                    btn.className = "admin-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition bg-purple-600 text-white";
+                } else {
+                    btn.className = "admin-nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50";
+                }
+            });
+        }
+
+        // --- User UI Updates ---
+        function updateUI() {
+            document.getElementById('userBalance').textContent = `$${state.currentUser.balance.toFixed(2)}`;
+            document.getElementById('userCoins').textContent = state.currentUser.coins.toLocaleString();
+            document.getElementById('completedTasksCount').textContent = state.currentUser.completedTasks;
+            document.getElementById('totalEarned').textContent = `$${state.currentUser.totalEarned.toFixed(2)}`;
+            
+            document.getElementById('displayConversionRate').textContent = state.settings.coinConversionRate;
+            document.getElementById('displayMinWithdrawal').textContent = state.settings.minWithdrawal.toFixed(2);
+
+            renderTasks();
+            renderActivityLog();
+        }
+
+        // --- Notification Toast ---
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-red-600' : 'bg-purple-600');
+            toast.className = `${bg} text-white px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2 text-sm font-medium transform transition-all duration-300 translate-y-2 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${message}</span>`;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Claim Daily Reward ---
+        function claimDailyReward() {
+            if (state.currentUser.dailyClaimed) {
+                showToast("You've already claimed your bonus today!", "info");
+                return;
+            }
+            state.currentUser.coins += 50;
+            state.currentUser.dailyClaimed = true;
+            
+            const claimBtn = document.getElementById('claimDailyBtn');
+            claimBtn.disabled = true;
+            claimBtn.className = "mt-4 px-6 py-2.5 bg-gray-400 text-white font-bold rounded-xl cursor-not-allowed";
+            claimBtn.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Claimed Today`;
+
+            addActivity("Daily Check-in Bonus", "+50 Coins", "coin");
+            updateUI();
+            showToast("Success! +50 Daily Bonus coins added to balance.");
+        }
+
+        // --- Task System ---
+        function renderTasks() {
+            const quickContainer = document.getElementById('quickTaskContainer');
+            const allContainer = document.getElementById('allTasksGrid');
+            
+            quickContainer.innerHTML = '';
+            allContainer.innerHTML = '';
+
+            const activeTasks = state.tasks.filter(t => t.active);
+
+            activeTasks.forEach(task => {
+                const cardHtml = `
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2.5 bg-brand-500/10 text-brand-500 rounded-xl">
+                                <i class="fa-solid ${task.icon || 'fa-tasks'} text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-sm">${task.title}</h4>
+                                <p class="text-xs text-gray-400">${task.desc}</p>
+                            </div>
+                        </div>
+                        <button onclick="completeTask(${task.id})" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg transition whitespace-nowrap">
+                            +$${task.reward.toFixed(2)}
+                        </button>
+                    </div>
+                `;
+                quickContainer.insertAdjacentHTML('beforeend', cardHtml);
+                allContainer.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function completeTask(taskId) {
+            if (state.settings.maintenanceMode) {
+                showToast("System under maintenance. Tasks temporarily paused.", "error");
+                return;
+            }
+            const task = state.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            state.currentUser.balance += task.reward;
+            state.currentUser.totalEarned += task.reward;
+            state.currentUser.completedTasks += 1;
+
+            addActivity(`Completed: ${task.title}`, `+$${task.reward.toFixed(2)}`, "earn");
+            updateUI();
+            showToast(`Task Complete! Earned +$${task.reward.toFixed(2)} USD`);
+        }
+
+        // --- Activity Log ---
+        function addActivity(title, amount, type) {
+            state.activities.unshift({
+                title,
+                amount,
+                time: "Just now",
+                type
+            });
+            if (state.activities.length > 5) state.activities.pop();
+            renderActivityLog();
+        }
+
+        function renderActivityLog() {
+            const logContainer = document.getElementById('activityLogContainer');
+            logContainer.innerHTML = '';
+
+            state.activities.forEach(item => {
+                const isPositive = item.amount.startsWith('+');
+                const html = `
+                    <div class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 rounded-full ${isPositive ? 'bg-emerald-500' : 'bg-red-500'}"></div>
+                            <div>
+                                <p class="text-sm font-medium">${item.title}</p>
+                                <span class="text-xs text-gray-400">${item.time}</span>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold ${isPositive ? 'text-emerald-500' : 'text-red-500'}">${item.amount}</span>
+                    </div>
+                `;
+                logContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // --- Survey Simulator ---
+        const surveyQuestions = [
+            { q: "How often do you use online mobile banking services?", options: ["Daily", "Weekly", "Rarely", "Never"] },
+            { q: "Which digital wallet do you prefer for micro-transactions?", options: ["bKash/Nagad", "PayPal", "Crypto Wallet", "Credit Card"] }
+        ];
+        let currentQuestionIdx = 0;
+
+        function startSurvey() {
+            document.getElementById('surveyIntro').classList.add('hidden');
+            document.getElementById('surveyActive').classList.remove('hidden');
+            currentQuestionIdx = 0;
+            renderSurveyQuestion();
+        }
+
+        function renderSurveyQuestion() {
+            const q = surveyQuestions[currentQuestionIdx];
+            document.getElementById('surveyQuestion').textContent = q.q;
+            document.getElementById('surveyProgressBar').style.width = `${((currentQuestionIdx + 1) / surveyQuestions.length) * 100}%`;
+
+            const optsContainer = document.getElementById('surveyOptions');
+            optsContainer.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-brand-500 dark:hover:border-brand-500 text-sm transition";
+                btn.textContent = opt;
+                btn.onclick = answerSurvey;
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function answerSurvey() {
+            if (currentQuestionIdx < surveyQuestions.length - 1) {
+                currentQuestionIdx++;
+                renderSurveyQuestion();
+            } else {
+                state.currentUser.balance += 1.50;
+                state.currentUser.totalEarned += 1.50;
+                addActivity("Survey Completion Reward", "+$1.50", "earn");
+                updateUI();
+
+                document.getElementById('surveyActive').classList.add('hidden');
+                document.getElementById('surveyIntro').classList.remove('hidden');
+                showToast("Survey Completed! +$1.50 added to balance.");
+            }
+        }
+
+        // --- Scratch Card Game Logic ---
+        function initScratchCanvas() {
+            const canvas = document.getElementById('scratchCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#9ca3af';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.font = 'bold 14px Inter';
+            ctx.fillStyle = '#374151';
+            ctx.textAlign = 'center';
+            ctx.fillText('SCRATCH HERE', canvas.width / 2, canvas.height / 2);
+
+            let isDrawing = false;
+
+            function scratch(e) {
+                if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+                const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 18, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            canvas.onmousedown = canvas.ontouchstart = () => { isDrawing = true; };
+            canvas.onmouseup = canvas.ontouchend = () => { isDrawing = false; };
+            canvas.onmousemove = canvas.ontouchmove = scratch;
+        }
+
+        function resetScratchGame() {
+            initScratchCanvas();
+            showToast("New card ready! Scratch to reveal prize.", "info");
+        }
+
+        // --- Referrals & Wallet Handlers ---
+        function copyReferralLink() {
+            const input = document.getElementById('referralInput');
+            document.execCommand('copy');
+            showToast("Referral link copied to clipboard!");
+        }
+
+        function selectGateway(gw) {
+            state.selectedGateway = gw;
+            document.querySelectorAll('.gateway-btn').forEach(btn => {
+                if (btn.dataset.gw === gw) {
+                    btn.className = "gateway-btn p-3 rounded-xl border border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 text-center flex flex-col items-center justify-center";
+                } else {
+                    btn.className = "gateway-btn p-3 rounded-xl border border-gray-200 dark:border-gray-700 text-center flex flex-col items-center justify-center hover:border-indigo-500";
+                }
+            });
+        }
+
+        function handleWithdrawal(e) {
+            e.preventDefault();
+            if (state.settings.maintenanceMode) {
+                showToast("System under maintenance. Payouts temporarily disabled.", "error");
+                return;
+            }
+
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const account = document.getElementById('accountInput').value;
+
+            if (amount < state.settings.minWithdrawal) {
+                showToast(`Minimum withdrawal is $${state.settings.minWithdrawal.toFixed(2)} USD`, "info");
+                return;
+            }
+
+            if (amount > state.currentUser.balance) {
+                showToast("Insufficient balance for this payout request.", "info");
+                return;
+            }
+
+            state.currentUser.balance -= amount;
+            
+            // Add to admin pending queue
+            const newReq = {
+                id: `w_${Date.now().toString().slice(-3)}`,
+                userName: state.currentUser.name,
+                gateway: state.selectedGateway,
+                account: account,
+                amount: amount,
+                status: "Pending"
+            };
+            state.withdrawals.unshift(newReq);
+
+            addActivity(`${state.selectedGateway} Payout Request`, `-$${amount.toFixed(2)}`, "withdraw");
+            updateUI();
+            showToast(`Payout request of $${amount.toFixed(2)} submitted for admin review!`);
+        }
+
+        function convertCoinsToCash() {
+            const rate = state.settings.coinConversionRate;
+            if (state.currentUser.coins < rate) {
+                showToast(`You need at least ${rate} coins to convert.`, "info");
+                return;
+            }
+            state.currentUser.coins -= rate;
+            state.currentUser.balance += 1.00;
+            addActivity(`Converted ${rate} Coins`, "+$1.00", "earn");
+            updateUI();
+            showToast(`Successfully converted ${rate} coins to $1.00 USD!`);
+        }
+
+        // --- ADMIN PANEL FUNCTIONS ---
+        function renderAdminPanel() {
+            // Update stats
+            document.getElementById('adminStatTotalUsers').textContent = state.users.length.toLocaleString();
+            
+            const totalPayouts = state.withdrawals
+                .filter(w => w.status === 'Approved')
+                .reduce((acc, curr) => acc + curr.amount, 0);
+            document.getElementById('adminStatTotalPayouts').textContent = `$${totalPayouts.toFixed(2)}`;
+
+            const pending = state.withdrawals.filter(w => w.status === 'Pending').length;
+            document.getElementById('adminStatPendingApprovals').textContent = pending;
+            document.getElementById('pendingBadgeCount').textContent = pending;
+
+            renderAdminUserTable();
+            renderAdminTaskTable();
+            renderAdminWithdrawalTable();
+        }
+
+        // Admin User Management Table
+        function renderAdminUserTable() {
+            const tbody = document.getElementById('adminUserTableBody');
+            tbody.innerHTML = '';
+
+            state.users.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 dark:hover:bg-gray-700/30";
+                tr.innerHTML = `
+                    <td class="p-4">
+                        <div class="font-bold text-sm">${u.name}</div>
+                        <div class="text-xs text-gray-400">${u.email}</div>
+                    </td>
+                    <td class="p-4 font-semibold text-emerald-500">$${u.balance.toFixed(2)}</td>
+                    <td class="p-4 font-semibold text-amber-500">${u.coins.toLocaleString()}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${u.status === 'Active' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300'}">
+                            ${u.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="adjustUserBalance('${u.id}')" class="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-lg text-xs font-bold">
+                            Adjust $
+                        </button>
+                        <button onclick="toggleUserStatus('${u.id}')" class="px-2.5 py-1 ${u.status === 'Active' ? 'bg-red-500/10 hover:bg-red-500/20 text-red-600' : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600'} rounded-lg text-xs font-bold">
+                            ${u.status === 'Active' ? 'Freeze' : 'Activate'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterUserTable() {
+            const term = document.getElementById('userSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#adminUserTableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        }
+
+        function toggleUserStatus(userId) {
+            const u = state.users.find(x => x.id === userId);
+            if (u) {
+                u.status = u.status === 'Active' ? 'Frozen' : 'Active';
+                showToast(`User status updated to ${u.status}`, "info");
+                renderAdminUserTable();
+            }
+        }
+
+        function adjustUserBalance(userId) {
+            const u = state.users.find(x => x.id === userId);
+            if (!u) return;
+            
+            const newBal = prompt(`Adjust balance for ${u.name} ($ USD):`, u.balance);
+            if (newBal !== null && !isNaN(parseFloat(newBal))) {
+                u.balance = parseFloat(newBal);
+                if (u.id === state.currentUser.id) state.currentUser.balance = u.balance;
+                showToast(`Balance updated for ${u.name}`);
+                renderAdminUserTable();
+                updateUI();
+            }
+        }
+
+        // Admin Task Management
+        function renderAdminTaskTable() {
+            const tbody = document.getElementById('adminTaskTableBody');
+            tbody.innerHTML = '';
+
+            state.tasks.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 dark:hover:bg-gray-700/30";
+                tr.innerHTML = `
+                    <td class="p-4">
+                        <div class="font-bold text-sm">${t.title}</div>
+                        <div class="text-xs text-gray-400">${t.desc}</div>
+                    </td>
+                    <td class="p-4 font-bold text-emerald-500">+$${t.reward.toFixed(2)}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${t.active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}">
+                            ${t.active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="toggleTaskActive(${t.id})" class="px-2.5 py-1 bg-gray-500/10 hover:bg-gray-500/20 text-gray-600 dark:text-gray-300 rounded-lg text-xs font-bold">
+                            ${t.active ? 'Disable' : 'Enable'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleAddTaskModal() {
+            document.getElementById('addTaskModal').classList.toggle('hidden');
+        }
+
+        function createNewTask() {
+            const title = document.getElementById('newTaskTitle').value;
+            const reward = parseFloat(document.getElementById('newTaskReward').value);
+            const desc = document.getElementById('newTaskDesc').value;
+
+            if (!title || isNaN(reward)) {
+                showToast("Please enter valid task details", "error");
+                return;
+            }
+
+            const newTask = {
+                id: Date.now(),
+                title,
+                reward,
+                type: 'cash',
+                icon: 'fa-star',
+                desc: desc || 'Sponsor task',
+                active: true
+            };
+
+            state.tasks.unshift(newTask);
+            toggleAddTaskModal();
+            renderAdminTaskTable();
+            renderTasks();
+            showToast("New task published successfully!");
+        }
+
+        function toggleTaskActive(taskId) {
+            const t = state.tasks.find(x => x.id === taskId);
+            if (t) {
+                t.active = !t.active;
+                renderAdminTaskTable();
+                renderTasks();
+                showToast(`Task active status changed`, "info");
+            }
+        }
+
+        // Admin Withdrawal Approvals
+        function renderAdminWithdrawalTable() {
+            const tbody = document.getElementById('adminWithdrawalTableBody');
+            tbody.innerHTML = '';
+
+            state.withdrawals.forEach(w => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 dark:hover:bg-gray-700/30";
+                
+                let statusBadge = "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300";
+                if (w.status === 'Approved') statusBadge = "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300";
+                if (w.status === 'Rejected') statusBadge = "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300";
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-sm">${w.userName}</td>
+                    <td class="p-4 font-semibold text-xs">${w.gateway}</td>
+                    <td class="p-4 font-mono text-xs">${w.account}</td>
+                    <td class="p-4 font-bold text-emerald-500">$${w.amount.toFixed(2)}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusBadge}">${w.status}</span>
+                    </td>
+                    <td class="p-4 text-right space-x-1">
+                        ${w.status === 'Pending' ? `
+                            <button onclick="approveWithdrawal('${w.id}')" class="px-2.5 py-1 bg-emerald-500 text-white rounded-lg text-xs font-bold hover:bg-emerald-600">Approve</button>
+                            <button onclick="rejectWithdrawal('${w.id}')" class="px-2.5 py-1 bg-red-500 text-white rounded-lg text-xs font-bold hover:bg-red-600">Reject</button>
+                        ` : '<span class="text-xs text-gray-400">Processed</span>'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function approveWithdrawal(id) {
+            const w = state.withdrawals.find(x => x.id === id);
+            if (w) {
+                w.status = 'Approved';
+                renderAdminPanel();
+                showToast(`Payout of $${w.amount.toFixed(2)} approved!`);
+            }
+        }
+
+        function rejectWithdrawal(id) {
+            const w = state.withdrawals.find(x => x.id === id);
+            if (w) {
+                w.status = 'Rejected';
+                renderAdminPanel();
+                showToast(`Payout request rejected`, "error");
+            }
+        }
+
+        // Admin System Settings
+        function saveAdminSettings() {
+            const coinRate = parseInt(document.getElementById('settingCoinRate').value);
+            const minW = parseFloat(document.getElementById('settingMinWithdrawal').value);
+
+            if (!isNaN(coinRate)) state.settings.coinConversionRate = coinRate;
+            if (!isNaN(minW)) state.settings.minWithdrawal = minW;
+
+            updateUI();
+            showToast("System configurations saved!");
+        }
+
+        function toggleMaintenanceMode(enabled) {
+            state.settings.maintenanceMode = enabled;
+            const badge = document.getElementById('maintenanceBadge');
+            if (enabled) {
+                badge.classList.remove('hidden');
+                showToast("Maintenance mode active", "error");
+            } else {
+                badge.classList.add('hidden');
+                showToast("System operational", "success");
+            }
+        }
+
+        // --- Initial Load ---
+        window.onload = function() {
+            updateUI();
+        }
+    </script>
+</body>
+</html>
